@@ -12,7 +12,8 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
       - name: Install gRPC
-        uses: |
+        run: |
+          pwd
           git clone -b v1.33.2 https://github.com/grpc/grpc
           cd grpc
           git submodule update --init --recursive
@@ -21,8 +22,8 @@ jobs:
           cd third_party/protobuf
           make install
       - name: MongoDB C Driver
-        uses: |
-          cd /deps
+        run: |
+          pwd
           apt-get install -y libssl-dev libsasl2-dev wget
           LATEST_RELEASE="https://api.github.com/repos/mongodb/mongo-c-driver/releases/latest"
           TAG=$(curl --silent $LATEST_RELEASE | grep -Po '"tag_name": "\K.*(?=")')
@@ -35,8 +36,8 @@ jobs:
            -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF ..
           make -j$(nproc) install
       - name: MongoDB CXX Driver
-        uses: |
-          cd /deps
+        run: |
+          pwd
           git clone https://github.com/mongodb/mongo-cxx-driver.git
            --branch releases/stable --depth 1
           cd mongo-cxx-driver/build
