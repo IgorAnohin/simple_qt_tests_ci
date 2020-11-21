@@ -8,11 +8,13 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     strategy:
+      fail-fast: false
       matrix:
         config:
         - {
             name: "Windows Latest x64",
-            os: windows-latest, make_program: "qtcreator/bin/jom"
+            os: windows-latest, make_program: "qtcreator/bin/jom",
+            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
           }
         - {
             name: "Linux Latest x64",
@@ -34,6 +36,11 @@ jobs:
       - name: Check
         run: pwd
       - name: Configure
-        run: qmake simple_qt_tests_ci.pro
+        run: |
+          if ("${{ runner.os }}" STREQUAL "Windows")
+              ${{ matrix.config.environment_script }}
+          endif()
+
+          qmake simple_qt_tests_ci.pro
       - name: Build
         run: ${{ matrix.config.make_program }}
