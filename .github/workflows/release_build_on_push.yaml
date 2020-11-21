@@ -4,35 +4,36 @@ on:
     types: [opened, synchronize, reopened, labeled]
 
 jobs:
-  name: ${{ matrix.config.name }}
-  runs-on: ${{ matrix.config.os }}
-  strategy:
-    matrix:
-      config:
-      - {
-          name: "Windows Latest x64",
-          os: windows-latest, make_program: "qtcreator/bin/jom"
-        }
-      - {
-          name: "Linux Latest x64",
-          os: ubuntu-latest, make_program: "make"
-        }
-      - {
-          name: "macOS Latest x64",
-          os: macos-latest, make_program: "make"
-        }
-  steps:
-    - uses: actions/checkout@v2
-      with:
-        ref: ${{ github.event.pull_request.head.sha }}
-        fetch-depth: 0
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v2
-      with:
-        version: '5.12.3'
-    - name: Check
-      run: pwd
-    - name: Configure
-      run: qmake simple_qt_tests_ci.pro
-    - name: Build
-      run: ${{ matrix.config.make_program }}
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      matrix:
+        config:
+        - {
+            name: "Windows Latest x64",
+            os: windows-latest, make_program: "qtcreator/bin/jom"
+          }
+        - {
+            name: "Linux Latest x64",
+            os: ubuntu-latest, make_program: "make"
+          }
+        - {
+            name: "macOS Latest x64",
+            os: macos-latest, make_program: "make"
+          }
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.12.3'
+      - name: Check
+        run: pwd
+      - name: Configure
+        run: qmake simple_qt_tests_ci.pro
+      - name: Build
+        run: ${{ matrix.config.make_program }}
