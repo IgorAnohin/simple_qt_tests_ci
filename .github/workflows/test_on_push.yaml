@@ -4,7 +4,6 @@ on:
     types: [opened, synchronize, reopened, labeled]
 
 jobs:
-
   run_tests:
     runs-on: [ubuntu-latest]
     steps:
@@ -12,6 +11,39 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+      - name: Install gRPC
+        uses: |
+          git clone -b v1.33.2 https://github.com/grpc/grpc
+          cd grpc
+          git submodule update --init --recursive
+          make -j$(nproc)
+          make install
+          cd third_party/protobuf
+          make install
+      - name: MongoDB C Driver
+        uses: |
+          cd /deps
+          apt-get install -y libssl-dev libsasl2-dev wget
+          LATEST_RELEASE="https://api.github.com/repos/mongodb/mongo-c-driver/releases/latest"
+          TAG=$(curl --silent $LATEST_RELEASE | grep -Po '"tag_name": "\K.*(?=")')
+          wget "https://github.com/mongodb/mongo-c-driver/releases/download/$TAG/mongo-c-driver-$TAG.tar.gz"
+          tar xzf "mongo-c-driver-$TAG.tar.gz"
+          cd "mongo-c-driver-$TAG" 
+          mkdir cmake-build && cd cmake-build
+          cmake -DCMAKE_BUILD_TYPE=Release \
+           -DENABLE_ICU=OFF \
+           -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF ..
+          make -j$(nproc) install
+      - name: MongoDB CXX Driver
+        uses: |
+          cd /deps
+          git clone https://github.com/mongodb/mongo-cxx-driver.git
+           --branch releases/stable --depth 1
+          cd mongo-cxx-driver/build
+          cmake -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_INSTALL_PREFIX=/usr/local \
+                -DBUILD_SHARED_LIBS=OFF ..
+          make -j$(nproc) install
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
