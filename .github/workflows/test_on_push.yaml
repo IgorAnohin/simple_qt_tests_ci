@@ -11,13 +11,14 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      - name: Install gRPC
+      - name: Prepare Deps and Local folders
         run: |
           mkdir -p ${{ github.workspace }}/../deps
           mkdir -p ${{ github.workspace }}/../local
-
+      - name: Install gRPC
+        run: |
           cd ${{ github.workspace }}/../deps
-          git clone -b v1.33.2 https://github.com/grpc/grpc
+          git clone https://github.com/grpc/grpc --branch v1.33.2 --depth 1
           cd grpc
           git submodule update --init --recursive
           mkdir -p cmake/build
@@ -27,26 +28,26 @@ jobs:
           make install
       - name: MongoDB C Driver
         run: |
-          pwd
-          apt-get install -y libssl-dev libsasl2-dev wget
-          LATEST_RELEASE="https://api.github.com/repos/mongodb/mongo-c-driver/releases/latest"
-          TAG=$(curl --silent $LATEST_RELEASE | grep -Po '"tag_name": "\K.*(?=")')
+          cd ${{ github.workspace }}/../deps
+          sudo apt-get install -y libssl-dev libsasl2-dev wget
+          TAG=1.17.2
           wget "https://github.com/mongodb/mongo-c-driver/releases/download/$TAG/mongo-c-driver-$TAG.tar.gz"
           tar xzf "mongo-c-driver-$TAG.tar.gz"
           cd "mongo-c-driver-$TAG" 
           mkdir cmake-build && cd cmake-build
           cmake -DCMAKE_BUILD_TYPE=Release \
            -DENABLE_ICU=OFF \
-           -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF ..
+           -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF \
+           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/../local \
+           ..
           make -j$(nproc) install
       - name: MongoDB CXX Driver
         run: |
-          pwd
-          git clone https://github.com/mongodb/mongo-cxx-driver.git
-           --branch releases/stable --depth 1
+          cd ${{ github.workspace }}/../deps
+          git clone https://github.com/mongodb/mongo-cxx-driver.git --branch r3.6.1 --depth 1
           cd mongo-cxx-driver/build
           cmake -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_INSTALL_PREFIX=/usr/local \
+                -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/../local \
                 -DBUILD_SHARED_LIBS=OFF ..
           make -j$(nproc) install
       - name: Install Qt
