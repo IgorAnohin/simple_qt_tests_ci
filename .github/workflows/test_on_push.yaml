@@ -16,7 +16,7 @@ jobs:
           mkdir -p ${{ github.workspace }}/../deps
           mkdir -p ${{ github.workspace }}/../local
 
-          cd ${{ github.workspace }}/deps
+          cd ${{ github.workspace }}/../deps
           git clone -b v1.33.2 https://github.com/grpc/grpc
           cd grpc
           git submodule update --init --recursive
