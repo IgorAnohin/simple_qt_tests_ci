@@ -4,26 +4,9 @@ on:
     types: [opened, synchronize, reopened, labeled]
 
 jobs:
-  build:
-    name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-        - {
-            name: "Windows Latest x64",
-            os: windows-latest, make_program: "qtcreator/bin/jom",
-            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
-          }
-        - {
-            name: "Linux Latest x64",
-            os: ubuntu-latest, make_program: "make"
-          }
-        - {
-            name: "macOS Latest x64",
-            os: macos-latest, make_program: "make"
-          }
+  win_build:
+    name: Windows Latest x64
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -33,14 +16,15 @@ jobs:
         uses: jurplel/install-qt-action@v2
         with:
           version: '5.12.3'
-      - name: Check
-        run: pwd
-      - name: Configure
+      - name: Configure test project on windows
         run: |
-          if ("${{ runner.os }}" STREQUAL "Windows")
-              ${{ matrix.config.environment_script }}
-          endif()
-
-          qmake simple_qt_tests_ci.pro
+          echo on
+          call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          qmake
+        shell: cmd
       - name: Build
-        run: ${{ matrix.config.make_program }}
+        run: |
+          echo on
+          call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          nmake check
+        shell: cmd
