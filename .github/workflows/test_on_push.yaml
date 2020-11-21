@@ -13,13 +13,14 @@ jobs:
           fetch-depth: 0
       - name: Install gRPC
         run: |
-          pwd
+          ls ${{ github.workspace }}
           git clone -b v1.33.2 https://github.com/grpc/grpc
           cd grpc
           git submodule update --init --recursive
+          mkdir -p cmake/build
+          cd cmake/build
+          cmake ../.. -DDBUILD_SHARED_LIBS=ON
           make -j$(nproc)
-          make install
-          cd third_party/protobuf
           make install
       - name: MongoDB C Driver
         run: |
