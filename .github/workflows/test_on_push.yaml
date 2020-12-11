@@ -21,22 +21,29 @@ jobs:
             GRPC_INSTALL_DIR: ${{ github.workspace }}/../local
         run: |
           git clone https://github.com/grpc/grpc --branch v1.32.0 --depth 1
+          pwd
           cd grpc
+          pwd
           git submodule update --init --recursive
          
           # Build abseil-cpp as static lib
           cd third_party/abseil-cpp
           mkdir -p build && cd build
+          pwd
           cmake \
               -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_POSITION_INDEPENDENT_CODE=True \
               -DCMAKE_INSTALL_PREFIX=$GRPC_DEPS_DIR/abseil-cpp ..
           make -j$(nproc)
           make install
+
+          pwd
           cd ../../.. # Back to gRPC root
+          pwd
          
           # Build gRPC itself
           mkdir -p cmake/build && cd cmake/build
+          pwd
           cmake \
               -DgRPC_INSTALL=ON \
               -DCMAKE_BUILD_TYPE=Release \
