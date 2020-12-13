@@ -22,3 +22,6 @@ jobs:
       - name: Run Docked build
         run: |
           docker build -t simple_qt_tests_ci -f Dockerfile .
+      - name: Run tests in Docker
+        run: |
+          docker run -it simple_qt_tests_ci /app/build/tests/tests
