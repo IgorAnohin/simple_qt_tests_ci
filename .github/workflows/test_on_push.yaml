@@ -11,6 +11,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+      - name: Print Working Directory
+        run: |
+            pwd
+            ls
       - name: Run Docked build
         run: |
           docker build -t simple_qt_tests_ci -f Dockerfile .
