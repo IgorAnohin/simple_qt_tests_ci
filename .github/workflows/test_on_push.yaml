@@ -4,23 +4,24 @@ on:
     types: [opened, synchronize, reopened, labeled]
 
 jobs:
-
   run_tests:
-    runs-on: [ubuntu-latest]
+    runs-on: [self-hosted, linux]
     steps:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: '5.12.3'
-      - name: Check
-        run: pwd
-      - name: Configure
-        run: qmake simple_qt_tests_ci.pro
-      - name: Build tests
-        run: make
-      - name: Run tests
-        run: make check
+      - name: Print Working Directory
+        run: |
+            pwd
+            ls
+            echo $USER
+      - name: Check Docked build
+        run: |
+          docker run hello-world
+      - name: Run Docked build
+        run: |
+          docker build -t simple_qt_tests_ci -f Dockerfile .
+      - name: Run tests in Docker
+        run: |
+          docker run -it simple_qt_tests_ci /app/build/tests/tests

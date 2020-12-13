@@ -4,7 +4,7 @@
 
 void test_SimpleClass::test_case1()
 {
-    QVERIFY(false);
+    QVERIFY(true);
 }
 
 QTEST_GUILESS_MAIN(test_SimpleClass)
