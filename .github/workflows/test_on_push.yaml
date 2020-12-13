@@ -16,3 +16,9 @@ jobs:
             pwd
             ls
             echo $USER
+      - name: Check Docked build
+        run: |
+          docker run hello-world
+      - name: Run Docked build
+        run: |
+          docker build -t simple_qt_tests_ci -f Dockerfile .
