@@ -106,6 +106,11 @@ RUN cd /deps \
     && make -j$(nproc) \
     && make install
 
-RUN mkdir -p /app/src
+RUN mkdir -p /app
+ADD . /app/src
+
 RUN mkdir -p /app/build
 WORKDIR /app/build
+RUN /deps/qt-5.12.3-build/qtbase/qmake/qmake /app/src/simple_qt_tests_ci.pro \
+    && make -j$(nproc)
+
