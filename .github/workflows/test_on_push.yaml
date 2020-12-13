@@ -15,6 +15,4 @@ jobs:
         run: |
             pwd
             ls
-      - name: Run Docked build
-        run: |
-          docker build -t simple_qt_tests_ci -f Dockerfile .
+            echo $USER
